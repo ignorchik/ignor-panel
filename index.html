@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ignor Panel</title>
+<style>
+:root {
+  --bg: #0a0a0a;
+  --bg2: #0f0f0f;
+  --bg3: #141414;
+  --card: #181818;
+  --card2: #1d1d1d;
+  --border: #222;
+  --border2: #2c2c2c;
+  --red: #c0392b;
+  --red2: #e74c3c;
+  --red3: #ff6b6b;
+  --red-dim: rgba(192,57,43,0.1);
+  --red-glow: rgba(192,57,43,0.25);
+  --text: #e8e8e8;
+  --text2: #777;
+  --text3: #444;
+  --green: #27ae60;
+  --green2: #2ecc71;
+  --yellow: #e67e22;
+  --yellow2: #f39c12;
+  --blue: #2980b9;
+  --blue2: #3498db;
+  --orange: #d35400;
+  --purple: #8e44ad;
+  --teal: #16a085;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;overflow-x:hidden;}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+::-webkit-scrollbar-thumb:hover{background:var(--red);}
+
+/* ── LOGIN ── */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:radial-gradient(ellipse at 50% 40%,#1a0404 0%,var(--bg) 65%);}
+.login-box{background:var(--card);border:1px solid var(--border2);border-radius:16px;padding:44px 40px;width:380px;box-shadow:0 0 100px rgba(192,57,43,0.1),0 24px 60px rgba(0,0,0,0.7);}
+.login-logo{text-align:center;margin-bottom:34px;}
+.login-logo .logo-icon{font-size:54px;display:block;margin-bottom:14px;filter:drop-shadow(0 0 24px rgba(231,76,60,0.5));}
+.login-logo h1{font-size:26px;color:var(--red2);font-weight:900;letter-spacing:5px;}
+.login-logo p{color:var(--text3);font-size:11px;margin-top:6px;letter-spacing:3px;text-transform:uppercase;}
+.form-group{margin-bottom:18px;}
+.form-group label{display:block;font-size:10px;color:var(--text2);margin-bottom:7px;text-transform:uppercase;letter-spacing:1.5px;}
+.form-group input{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:11px 14px;border-radius:9px;font-size:14px;outline:none;transition:all .2s;}
+.form-group input:focus{border-color:var(--red2);box-shadow:0 0 0 3px var(--red-dim);}
+.btn-login{width:100%;background:var(--red);color:#fff;border:none;padding:13px;border-radius:9px;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;margin-top:6px;letter-spacing:1px;box-shadow:0 4px 20px var(--red-glow);}
+.btn-login:hover{background:var(--red2);transform:translateY(-1px);box-shadow:0 6px 28px var(--red-glow);}
+.login-error{color:var(--red3);font-size:13px;text-align:center;margin-top:12px;display:none;padding:9px;background:var(--red-dim);border-radius:7px;border:1px solid rgba(231,76,60,0.2);}
+
+/* ── LAYOUT ── */
+#app{display:none;}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:224px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{padding:18px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:11px;}
+.sidebar-logo .s-icon{font-size:28px;filter:drop-shadow(0 0 10px rgba(231,76,60,0.6));}
+.sidebar-logo-text h2{font-size:17px;color:var(--red2);font-weight:900;letter-spacing:2px;line-height:1.1;}
+.sidebar-logo-text span{font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;}
+.nav{flex:1;padding:8px 0;overflow-y:auto;}
+.nav-section{padding:16px 16px 5px;font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:1.5px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 16px;cursor:pointer;color:var(--text2);font-size:13px;transition:all .15s;border-left:2px solid transparent;user-select:none;}
+.nav-item:hover{background:var(--red-dim);color:var(--text);}
+.nav-item.active{background:var(--red-dim);color:var(--red2);border-left-color:var(--red2);}
+.nav-item .nav-icon{font-size:15px;width:20px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--red);color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:8px;min-width:18px;text-align:center;}
+.sidebar-bottom{padding:14px 16px;border-top:1px solid var(--border);}
+.sidebar-user{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+.user-ava{width:36px;height:36px;border-radius:9px;background:var(--red-dim);border:1px solid rgba(192,57,43,0.4);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.user-name{font-size:13px;font-weight:700;color:var(--text);}
+.user-role{font-size:11px;color:var(--text2);}
+.srv-status{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);margin-bottom:10px;}
+.dot{width:7px;height:7px;border-radius:50%;background:var(--border2);transition:all .3s;flex-shrink:0;}
+.dot.online{background:var(--green2);box-shadow:0 0 7px var(--green2);}
+.dot.offline{background:var(--red2);box-shadow:0 0 7px var(--red2);}
+.dot.connecting{background:var(--yellow2);box-shadow:0 0 7px var(--yellow2);animation:blink 1s infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:.3;}}
+.logout-btn{width:100%;background:transparent;border:1px solid var(--border2);color:var(--text2);padding:8px;border-radius:7px;cursor:pointer;font-size:12px;transition:all .2s;}
+.logout-btn:hover{border-color:var(--red2);color:var(--red2);}
+
+/* ── MAIN ── */
+.main{margin-left:224px;padding:22px 26px;min-height:100vh;}
+.page{display:none;}
+.page.active{display:block;animation:fadeUp .2s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);}}
+.page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:12px;}
+.ph-left h1{font-size:21px;font-weight:800;display:flex;align-items:center;gap:10px;}
+.ph-left p{color:var(--text2);font-size:13px;margin-top:4px;}
+.ph-right{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* ── CONNECT BAR ── */
+.connect-bar{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:14px 18px;margin-bottom:22px;display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;}
+.cb-group{display:flex;flex-direction:column;gap:5px;}
+.cb-group label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;}
+.cb-group input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 11px;border-radius:7px;font-size:13px;outline:none;transition:all .2s;}
+.cb-group input:focus{border-color:var(--red2);box-shadow:0 0 0 2px var(--red-dim);}
+.cb-group input.ip{width:145px;}
+.cb-group input.port{width:72px;}
+.cb-group input.pass{width:125px;}
+.rcon-info{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--text2);}
+
+/* ── STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:22px;}
+.stat-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:18px 16px;position:relative;overflow:hidden;cursor:default;}
+.stat-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.stat-card.red::after{background:linear-gradient(90deg,var(--red2),transparent);}
+.stat-card.green::after{background:linear-gradient(90deg,var(--green2),transparent);}
+.stat-card.yellow::after{background:linear-gradient(90deg,var(--yellow2),transparent);}
+.stat-card.blue::after{background:linear-gradient(90deg,var(--blue2),transparent);}
+.stat-card.purple::after{background:linear-gradient(90deg,var(--purple),transparent);}
+.stat-card.teal::after{background:linear-gradient(90deg,var(--teal),transparent);}
+.stat-icon{font-size:24px;margin-bottom:10px;display:block;}
+.stat-label{font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:1px;}
+.stat-value{font-size:30px;font-weight:900;margin:4px 0 2px;line-height:1;}
+.stat-card.red .stat-value{color:var(--red2);}
+.stat-card.green .stat-value{color:var(--green2);}
+.stat-card.yellow .stat-value{color:var(--yellow2);}
+.stat-card.blue .stat-value{color:var(--blue2);}
+.stat-card.purple .stat-value{color:var(--purple);}
+.stat-card.teal .stat-value{color:var(--teal);}
+.stat-sub{font-size:11px;color:var(--text3);}
+
+/* ── TABLE ── */
+.table-wrap{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+.table-toolbar{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.table-title{font-size:14px;font-weight:600;flex:1;}
+.search-input{background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 12px;border-radius:7px;font-size:13px;outline:none;width:230px;transition:all .2s;}
+.search-input:focus{border-color:var(--red2);box-shadow:0 0 0 2px var(--red-dim);}
+table{width:100%;border-collapse:collapse;}
+th{background:var(--bg3);padding:10px 14px;text-align:left;font-size:10px;color:var(--text2);text-transform:uppercase;letter-spacing:.8px;border-bottom:1px solid var(--border);white-space:nowrap;}
+td{padding:10px 14px;font-size:13px;border-bottom:1px solid var(--border);vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(255,255,255,0.012);}
+.pcell{display:flex;align-items:center;gap:10px;}
+.pava{width:34px;height:34px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:1px solid var(--border2);}
+.pname{font-weight:600;font-size:13px;}
+.psteam{font-size:11px;color:var(--text2);margin-top:1px;font-family:monospace;}
+
+/* ── BADGES ── */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:5px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;white-space:nowrap;}
+.b-online{background:rgba(46,204,113,.12);color:var(--green2);border:1px solid rgba(46,204,113,.2);}
+.b-offline{background:rgba(80,80,80,.15);color:#555;border:1px solid rgba(80,80,80,.2);}
+.b-banned{background:rgba(231,76,60,.12);color:var(--red2);border:1px solid rgba(231,76,60,.2);}
+.b-muted{background:rgba(243,156,18,.12);color:var(--yellow2);border:1px solid rgba(243,156,18,.2);}
+.b-owner{background:rgba(231,76,60,.18);color:var(--red3);border:1px solid rgba(231,76,60,.3);}
+.b-admin{background:rgba(230,126,34,.15);color:#f0a500;border:1px solid rgba(230,126,34,.25);}
+.b-moder{background:rgba(52,152,219,.12);color:var(--blue2);border:1px solid rgba(52,152,219,.2);}
+.b-vip{background:rgba(142,68,173,.12);color:#b07fd4;border:1px solid rgba(142,68,173,.2);}
+.b-urgent{background:rgba(231,76,60,.18);color:var(--red3);border:1px solid rgba(231,76,60,.3);}
+.b-new{background:rgba(52,152,219,.12);color:var(--blue2);border:1px solid rgba(52,152,219,.2);}
+.b-done{background:rgba(46,204,113,.12);color:var(--green2);border:1px solid rgba(46,204,113,.2);}
+
+/* ── BUTTONS ── */
+.btn{padding:7px 13px;border-radius:7px;border:none;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+.btn:active{transform:scale(.96);}
+.btn-red{background:rgba(192,57,43,.15);color:var(--red2);border:1px solid rgba(192,57,43,.3);}
+.btn-red:hover{background:var(--red);color:#fff;border-color:var(--red);}
+.btn-yellow{background:rgba(230,126,34,.12);color:var(--yellow2);border:1px solid rgba(230,126,34,.25);}
+.btn-yellow:hover{background:var(--yellow);color:#fff;border-color:var(--yellow);}
+.btn-green{background:rgba(39,174,96,.12);color:var(--green2);border:1px solid rgba(39,174,96,.25);}
+.btn-green:hover{background:var(--green);color:#fff;border-color:var(--green);}
+.btn-blue{background:rgba(41,128,185,.12);color:var(--blue2);border:1px solid rgba(41,128,185,.25);}
+.btn-blue:hover{background:var(--blue);color:#fff;border-color:var(--blue);}
+.btn-primary{background:var(--red);color:#fff;border:1px solid var(--red);box-shadow:0 2px 12px var(--red-glow);}
+.btn-primary:hover{background:var(--red2);box-shadow:0 4px 18px var(--red-glow);}
+.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border2);}
+.btn-ghost:hover{border-color:var(--red2);color:var(--red2);}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.actions{display:flex;gap:5px;flex-wrap:wrap;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);display:none;align-items:center;justify-content:center;z-index:999;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--card);border:1px solid var(--border2);border-radius:14px;padding:28px;width:440px;max-width:95vw;box-shadow:0 0 80px rgba(0,0,0,.8),0 0 40px var(--red-glow);}
+.modal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;}
+.modal-hdr h3{font-size:16px;color:var(--red2);font-weight:700;}
+.modal-x{background:none;border:none;color:var(--text2);cursor:pointer;font-size:20px;line-height:1;padding:2px 6px;border-radius:4px;transition:color .2s;}
+.modal-x:hover{color:var(--red2);}
+.modal .form-group{margin-bottom:15px;}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:22px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+select{width:100%;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:11px 14px;border-radius:9px;font-size:14px;outline:none;transition:all .2s;cursor:pointer;}
+select:focus{border-color:var(--red2);box-shadow:0 0 0 3px var(--red-dim);}
+
+/* ── CONSOLE ── */
+.console-wrap{background:#050505;border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+.console-bar{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;background:var(--bg3);}
+.cdot{width:10px;height:10px;border-radius:50%;}
+.console-out{height:460px;overflow-y:auto;padding:14px;font-family:'Cascadia Code','Consolas','Courier New',monospace;font-size:12.5px;line-height:1.8;}
+.ll{margin-bottom:1px;word-break:break-all;}
+.ll.info{color:#555;}
+.ll.success{color:var(--green2);}
+.ll.error{color:var(--red2);}
+.ll.warn{color:var(--yellow2);}
+.ll.cmd{color:var(--red3);font-weight:bold;}
+.ll.resp{color:#aaa;}
+.ll.sys{color:var(--blue2);}
+.console-in{display:flex;border-top:1px solid var(--border);background:var(--bg3);}
+.c-prompt{padding:10px 12px;color:var(--red2);font-family:'Cascadia Code','Consolas',monospace;font-size:14px;user-select:none;}
+.c-input{flex:1;background:transparent;border:none;color:var(--text);font-family:'Cascadia Code','Consolas',monospace;font-size:13px;outline:none;padding:10px 0;}
+.c-send{padding:8px 18px;background:var(--red);color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;}
+.c-send:hover{background:var(--red2);}
+
+/* ── CHAT ── */
+.chat-wrap{background:var(--card);border:1px solid var(--border);border-radius:11px;overflow:hidden;}
+.chat-log{height:460px;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:8px;}
+.chat-msg{display:flex;gap:10px;align-items:flex-start;}
+.chat-msg .cava{width:34px;height:34px;border-radius:8px;background:var(--bg3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;border:1px solid var(--border2);}
+.chat-msg .ctop{display:flex;align-items:baseline;gap:8px;}
+.chat-msg .cname{font-size:13px;color:var(--red2);font-weight:700;}
+.chat-msg .ctime{font-size:11px;color:var(--text3);}
+.chat-msg .ctext{font-size:13px;color:var(--text);margin-top:3px;line-height:1.45;}
+.chat-msg.srv .cname{color:var(--yellow2);}
+.chat-msg.srv .cava{border-color:rgba(243,156,18,.3);}
+.chat-msg.team .cname{color:var(--blue2);}
+.chat-in{display:flex;border-top:1px solid var(--border);background:var(--bg3);}
+.chat-input{flex:1;background:transparent;border:none;color:var(--text);font-size:13px;outline:none;padding:12px 14px;}
+.chat-send{padding:10px 20px;background:var(--red);color:#fff;border:none;cursor:pointer;font-size:13px;font-weight:600;transition:background .2s;}
+.chat-send:hover{background:var(--red2);}
+
+/* ── STAFF ── */
+.staff-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;}
+.staff-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:18px;display:flex;align-items:center;gap:14px;transition:border-color .2s;}
+.staff-card:hover{border-color:var(--border2);}
+.staff-ava{width:48px;height:48px;border-radius:11px;background:var(--red-dim);border:1px solid rgba(192,57,43,.3);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.staff-info{flex:1;}
+.staff-name{font-size:14px;font-weight:700;}
+.staff-login{font-size:12px;color:var(--text2);margin-top:2px;}
+.staff-acts{display:flex;gap:6px;margin-top:8px;}
+
+/* ── REPORTS ── */
+.reports-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;}
+.rep-card{background:var(--card);border:1px solid var(--border);border-radius:11px;padding:16px;transition:border-color .2s;}
+.rep-card:hover{border-color:var(--border2);}
+.rep-card.urgent{border-left:3px solid var(--red2);}
+.rep-card.normal{border-left:3px solid var(--blue2);}
+.rep-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.rep-title{font-size:14px;font-weight:700;}
+.rep-body{font-size:13px;color:var(--text2);line-height:1.5;}
+.rep-footer{display:flex;align-items:center;justify-content:space-between;margin-top:12px;}
+.rep-meta{font-size:11px;color:var(--text3);}
+
+/* ── HISTORY ── */
+.hist-list{padding:4px 0;}
+.hist-item{display:flex;align-items:flex-start;gap:12px;padding:12px 16px;border-bottom:1px solid var(--border);transition:background .15s;}
+.hist-item:last-child{border-bottom:none;}
+.hist-item:hover{background:rgba(255,255,255,.01);}
+.hist-ico{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.hist-ico.ban{background:rgba(231,76,60,.12);}
+.hist-ico.mute{background:rgba(243,156,18,.12);}
+.hist-ico.kick{background:rgba(52,152,219,.12);}
+.hist-ico.unban{background:rgba(46,204,113,.12);}
+.hist-ico.unmute{background:rgba(46,204,113,.12);}
+.hist-ico.warn{background:rgba(230,126,34,.12);}
+.hist-body{flex:1;}
+.hist-action{font-size:13px;font-weight:600;}
+.hist-detail{font-size:12px;color:var(--text2);margin-top:2px;}
+.hist-time{font-size:11px;color:var(--text3);white-space:nowrap;margin-top:2px;}
+
+/* ── TOAST ── */
+.toast-container{position:fixed;bottom:22px;right:22px;z-index:9999;display:flex;flex-direction:column;gap:8px;}
+.toast{background:var(--card2);border:1px solid var(--border2);border-radius:9px;padding:12px 16px;font-size:13px;display:flex;align-items:center;gap:10px;min-width:250px;max-width:340px;animation:slideIn .3s ease;box-shadow:0 8px 28px rgba(0,0,0,.6);}
+.toast.success{border-left:3px solid var(--green2);}
+.toast.error{border-left:3px solid var(--red2);}
+.toast.info{border-left:3px solid var(--blue2);}
+.toast.warn{border-left:3px solid var(--yellow2);}
+@keyframes slideIn{from{transform:translateX(110%);opacity:0;}to{transform:translateX(0);opacity:1;}}
+
+/* ── MISC ── */
+.empty-state{text-align:center;padding:48px 20px;color:var(--text2);}
+.empty-state .ei{font-size:42px;margin-bottom:10px;opacity:.4;}
+.empty-state p{font-size:13px;}
+.divider{height:1px;background:var(--border);margin:18px 0;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.section-title{font-size:13px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:14px;}
+.info-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.info-row:last-child{border-bottom:none;}
+.info-row .ir-label{color:var(--text2);}
+.info-row .ir-val{font-weight:600;}
+@media(max-width:900px){.sidebar{width:200px;}.main{margin-left:200px;}.two-col{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">
+      <span class="logo-icon">🛡️</span>
+      <h1>IGNOR PANEL</h1>
+      <p>Rust Server Management</p>
+    </div>
+    <div class="form-group">
+      <label>Логин</label>
+      <input type="text" id="login-user" placeholder="admin" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="form-group">
+      <label>Пароль</label>
+      <input type="password" id="login-pass" placeholder
+="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <button class="btn-login" onclick="doLogin()">Войти →</button>
+    <div class="login-error" id="login-error">Неверный логин или пароль</div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <div class="sidebar">
+    <div class="sidebar-logo">
+      <span class="s-icon">🛡️</span>
+      <div class="sidebar-logo-text">
+        <h2>IGNOR</h2>
+        <span>PANEL v2.0</span>
+      </div>
+    </div>
+    <nav class="nav">
+      <div class="nav-section">Главное</div>
+      <div class="nav-item active" data-page="dashboard" onclick="showPage('dashboard',this)">
+        <span class="nav-icon">📊</span> Дашборд
+      </div>
+      <div class="nav-item" data-page="players" onclick="showPage('players',this)">
+        <span class="nav-icon">👥</span> Игроки
+        <span class="nav-badge" id="badge-players">0</span>
+      </div>
+      <div class="nav-section">Модерация</div>
+      <div class="nav-item" data-page="bans" onclick="showPage('bans',this)">
+        <span class="nav-icon">🔨</span> Баны
+        <span class="nav-badge" id="badge-bans" style="display:none">0</span>
+      </div>
+      <div class="nav-item" data-page="mutes" onclick="showPage('mutes',this)">
+        <span class="nav-icon">🔇</span> Муты
+        <span class="nav-badge" id="badge-mutes" style="display:none">0</span>
+      </div>
+      <div class="nav-item" data-page="reports" onclick="showPage('reports',this)">
+        <span class="nav-icon">🚨</span> Репорты
+        <span class="nav-badge" id="badge-reports">0</span>
+      </div>
+      <div class="nav-item" data-page="history" onclick="showPage('history',this)">
+        <span class="nav-icon">📋</span> История
+      </div>
+      <div class="nav-section">Сервер</div>
+      <div class="nav-item" data-page="chat" onclick="showPage('chat',this)">
+        <span class="nav-icon">💬</span> Чат
+      </div>
+      <div class="nav-item" data-page="console" onclick="showPage('console',this)">
+        <span class="nav-icon">⌨️</span> Консоль
+      </div>
+      <div class="nav-section">Команда</div>
+      <div class="nav-item" data-page="staff" onclick="showPage('staff',this)">
+        <span class="nav-icon">👮</span> Сотрудники
+      </div>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="sidebar-user">
+        <div class="user-ava">👤</div>
+        <div>
+          <div class="user-name" id="sidebar-username">admin</div>
+          <div class="user-role">Администратор</div>
+        </div>
+      </div>
+      <div class="srv-status">
+        <div class="dot" id="status-dot"></div>
+        <span id="status-text">Не подключён</span>
+      </div>
+      <button class="logout-btn" onclick="doLogout()">🚪 Выйти</button>
+    </div>
+  </div>
+
+  <main class="main">
+
+    <!-- CONNECT BAR -->
+    <div class="connect-bar">
+      <div class="cb-group">
+        <label>IP Сервера</label>
+        <input class="ip" type="text" id="rcon-ip" placeholder="127.0.0.1">
+      </div>
+      <div class="cb-group">
+        <label>RCON Порт</label>
+        <input class="port" type="text" id="rcon-port" placeholder="28016">
+      </div>
+      <div class="cb-group">
+        <label>RCON Пароль</label>
+        <input class="pass" type="password" id="rcon-pass" placeholder="пароль">
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn-primary" onclick="connectRCON()">🔌 Подключить</button>
+        <button class="btn btn-ghost" onclick="disconnectRCON()">Отключить</button>
+      </div>
+      <div class="rcon-info">
+        <div class="dot" id="rcon-dot"></div>
+        <span id="rcon-text">Нет соединения</span>
+      </div>
+    </div>
+
+    <!-- ══ DASHBOARD ══ -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-header">
+        <div class="ph-left">
+          <h1>📊 Дашборд</h1>
+          <p>Общая информация о сервере</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost" onclick="refreshAll()">🔄 Обновить</button>
+        </div>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card green">
+          <span class="stat-icon">🟢</span>
+          <div class="stat-label">Онлайн</div>
+          <div class="stat-value" id="stat-online">—</div>
+          <div class="stat-sub">игроков сейчас</div>
+        </div>
+        <div class="stat-card blue">
+          <span class="stat-icon">🎮</span>
+          <div class="stat-label">Слотов</div>
+          <div class="stat-value" id="stat-slots">—</div>
+          <div class="stat-sub">максимум</div>
+        </div>
+        <div class="stat-card yellow">
+          <span class="stat-icon">⚡</span>
+          <div class="stat-label">FPS</div>
+          <div class="stat-value" id="stat-fps">—</div>
+          <div class="stat-sub">серверный</div>
+        </div>
+        <div class="stat-card teal">
+          <span class="stat-icon">🗺️</span>
+          <div class="stat-label">Карта</div>
+          <div class="stat-value" style="font-size:16px;margin-top:8px" id="stat-map">—</div>
+          <div class="stat-sub">текущая</div>
+        </div>
+        <div class="stat-card red">
+          <span class="stat-icon">🔨</span>
+          <div class="stat-label">Банов</div>
+          <div class="stat-value" id="stat-bans">0</div>
+          <div class="stat-sub">активных</div>
+        </div>
+        <div class="stat-card purple">
+          <span class="stat-icon">🔇</span>
+          <div class="stat-label">Мутов</div>
+          <div class="stat-value" id="stat-mutes">0</div>
+          <div class="stat-sub">активных</div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <span class="table-title">🟢 Онлайн игроки</span>
+        </div>
+        <table>
+          <thead><tr><th>Игрок</th><th>Steam ID</th><th>Пинг</th><th>Действия</th></tr></thead>
+          <tbody id="dash-players">
+            <tr><td colspan="4"><div class="empty-state"><div class="ei">🔌</div><p>Подключитесь к серверу</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ PLAYERS ══ -->
+    <div class="page" id="page-players">
+      <div class="page-header">
+        <div class="ph-left">
+          <h1>👥 Игроки</h1>
+          <p>Управление игроками сервера</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost" onclick="loadPlayers()">🔄 Обновить</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="search-input" type="text" placeholder="🔍 Поиск по нику или Steam ID..." oninput="filterPlayers(this.value)">
+        </div>
+        <table>
+          <thead><tr><th>Игрок</th><th>Steam ID</th><th>Пинг</th><th>Статус</th><th>Действия</th></tr></thead>
+          <tbody id="players-table">
+            <tr><td colspan="5"><div class="empty-state"><div class="ei">🔌</div><p>Подключитесь к серверу</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ BANS ══ -->
+    <div class="page" id="page-bans">
+      <div class="page-header">
+        <div class="ph-left">
+          <h1>🔨 Баны</h1>
+          <p>Управление банами игроков</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-primary" onclick="openModal('modal-ban')">+ Забанить</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="search-input" type="text" placeholder="🔍 Поиск..." oninput="filterBans(this.value)">
+        </div>
+        <table>
+          <thead><tr><th>Игрок</th><th>Steam ID</th><th>Причина</th><th>Кем</th><th>Дата</th><th>Действия</th></tr></thead>
+          <tbody id="bans-table">
+            <tr><td colspan="6"><div class="empty-state"><div class="ei">🔨</div><p>Банов нет</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ MUTES ══ -->
+    <div class="page" id="page-mutes">
+      <div class="page-header">
+        <div class="ph-left">
+          <h1>🔇 Муты</h1>
+          <p>Управление мутами игроков</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-primary" onclick="openModal('modal-mute')">+ Замутить</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <input class="search-input" type="text" placeholder="🔍 Поиск..." oninput="filterMutes(this.value)">
+        </div>
+        <table>
+          <thead><tr><th>Игрок</th><th>Steam ID</th><th>Причина</th><th>Кем</th><th>До</th><th>Действия</th></tr></thead>
+          <tbody id="mutes-table">
+            <tr><td colspan="6"><div class="empty-state"><div class="ei">🔇</div><p>Мутов нет</p></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ══ REPORTS ══ -->
+    <div class="page" id="page-reports">
+      <div class="page-header">
+        <div class="ph-left">
+          <h1>🚨 Репорты</h1>
+          <p>Жалобы игроков</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost" onclick="addDemoReport()">+ Тест репорт</button>
+          <button class="btn btn-ghost" onclick="clearReports()">🗑️ Очистить</button>
+        </div>
+      </div>
+      <div id="reports-container">
+        <div class="empty-state"><div class="ei">🚨</div><p>Репортов нет</p></div>
+      </div>
+    </div>
+
+    <!-- ══ HISTORY ══ -->
+    <div class="page" id="page-history">
+      <div class="page-header">
+        <div class="ph-left">
+          <h1>📋 История действий</h1>
+          <p>Лог всех модераторских действий</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost" onclick="clearHistory()">🗑️ Очистить</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <div class="hist-list" id="history-list">
+          <div class="empty-state"><div class="ei">📋</div><p>История пуста</p></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CHAT ══ -->
+    <div class="page" id="page-chat">
+      <div class="page-header">
+        <div class="ph-left">
+          <h1>💬 Чат</h1>
+          <p>Лог чата сервера в реальном времени</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost" onclick="clearChat()">🗑️ Очистить</button>
+        </div>
+      </div>
+      <div class="chat-wrap">
+        <div class="chat-log" id="chat-log">
+          <div class="empty-state"><div class="ei">💬</div><p>Подключитесь к серверу</p></div>
+        </div>
+        <div class="chat-in">
+          <input class="chat-input" type="text" id="chat-input" placeholder="Написать в чат от имени сервера..." onkeydown="if(event.key==='Enter')sendChat()">
+          <button class="chat-send" onclick="sendChat()">Отправить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ CONSOLE ══ -->
+    <div class="page" id="page-console">
+      <div class="page-header">
+        <div class="ph-left">
+          <h1>⌨️ Консоль</h1>
+          <p>RCON консоль сервера</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-ghost" onclick="clearConsole()">🗑️ Очистить</button>
+        </div>
+      </div>
+      <div class="console-wrap">
+        <div class="console-bar">
+          <div class="cdot" style="background:#ff5f57"></div>
+          <div class="cdot" style="background:#febc2e"></div>
+          <div class="cdot" style="background:#28c840"></div>
+          <span style="font-size:12px;color:var(--text3);margin-left:8px">RCON Console</span>
+        </div>
+        <div class="console-out" id="console-out">
+          <div class="ll info">[ Ignor Panel v2.0 ] Консоль готова. Подключитесь к серверу.</div>
+        </div>
+        <div class="console-in">
+          <span class="c-prompt">❯</span>
+          <input class="c-input" type="text" id="c-input" placeholder="Введите RCON команду..." onkeydown="handleConsoleKey(event)">
+          <button class="c-send" onclick="sendConsoleCmd()">Выполнить</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ══ STAFF ══ -->
+    <div class="page" id="page-staff">
+      <div class="page-header">
+        <div class="ph-left">
+          <h1>👮 Сотрудники</h1>
+          <p>Команда сервера</p>
+        </div>
+        <div class="ph-right">
+          <button class="btn btn-primary" onclick="openModal('modal-staff')">+ Добавить</button>
+        </div>
+      </div>
+      <div id="staff-container" class="staff-grid"></div>
+    </div>
+
+  </main>
+</div>
+
+<!-- ══ MODAL: BAN ══ -->
+<div class="modal-overlay" id="modal-ban">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>🔨 Забанить игрока</h3>
+      <button class="modal-x" onclick="closeModal('modal-ban')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Steam ID или ник</label>
+      <input type="text" id="ban-target" placeholder="76561198XXXXXXXXX или ник">
+    </div>
+    <div class="form-group">
+      <label>Причина</label>
+      <input type="text" id="ban-reason" placeholder="Читы, токсик, реклама...">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Длительность (сек, 0=навсегда)</label>
+        <input type="text" id="ban-duration" value="0">
+      </div>
+      <div class="form-group">
+        <label>Кем выдан</label>
+        <input type="text" id="ban-by" placeholder="Ник модератора">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-ban')">Отмена</button>
+      <button class="btn btn-red" onclick="executeBan()">🔨 Забанить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: MUTE ══ -->
+<div class="modal-overlay" id="modal-mute">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>🔇 Замутить игрока</h3>
+      <button class="modal-x" onclick="closeModal('modal-mute')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Steam ID или ник</label>
+      <input type="text" id="mute-target" placeholder="76561198XXXXXXXXX или ник">
+    </div>
+    <div class="form-group">
+      <label>Причина</label>
+      <input type="text" id="mute-reason" placeholder="Спам, оскорбления...">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>Длительность (мин, 0=навсегда)</label>
+        <input type="text" id="mute-duration" value="60">
+      </div>
+      <div class="form-group">
+        <label>Кем выдан</label>
+        <input type="text" id="mute-by" placeholder="Ник модератора">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-mute')">Отмена</button>
+      <button class="btn btn-yellow" onclick="executeMute()">🔇 Замутить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: KICK ══ -->
+<div class="modal-overlay" id="modal-kick">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>👢 Кикнуть игрока</h3>
+      <button class="modal-x" onclick="closeModal('modal-kick')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Игрок</label>
+      <input type="text" id="kick-target" readonly>
+    </div>
+    <div class="form-group">
+      <label>Причина</label>
+      <input type="text" id="kick-reason" placeholder="Причина кика...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-kick')">Отмена</button>
+      <button class="btn btn-yellow" onclick="executeKick()">👢 Кикнуть</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: WARN ══ -->
+<div class="modal-overlay" id="modal-warn">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>⚠️ Предупреждение</h3>
+      <button class="modal-x" onclick="closeModal('modal-warn')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Игрок</label>
+      <input type="text" id="warn-target" readonly>
+    </div>
+    <div class="form-group">
+      <label>Причина предупреждения</label>
+      <input type="text" id="warn-reason" placeholder="Причина...">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-warn')">Отмена</button>
+      <button class="btn btn-yellow" onclick="executeWarn()">⚠️ Предупредить</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ MODAL: STAFF ══ -->
+<div class="modal-overlay" id="modal-staff">
+  <div class="modal">
+    <div class="modal-hdr">
+      <h3>👮 Добавить сотрудника</h3>
+      <button class="modal-x" onclick="closeModal('modal-staff')">✕</button>
+    </div>
+    <div class="form-group">
+      <label>Имя</label>
+      <input type="text" id="staff-name" placeholder="Имя сотрудника">
+    </div>
+    <div class="form-group">
+      <label>Логин (для входа в панель)</label>
+      <input type="text" id="staff-login" placeholder="login123">
+    </div>
+    <div class="form-group">
+      <label>Пароль</label>
+      <input type="password" id="staff-password" placeholder="••••••••">
+    </div>
+    <div class="form-group">
+      <label>Роль</label>
+      <select id="staff-role">
+        <option value="owner">👑 Owner</option>
+        <option value="admin" selected>🔴 Admin</option>
+        <option value="moder">🔵 Moderator</option>
+      </select>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeModal('modal-staff')">Отмена</button>
+      <button class="btn btn-primary" onclick="addStaff()">✅ Добавить</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ══════════════════════════════════════════
+// НАСТРОЙКИ
+// ══════════════════════════════════════════
+const PANEL_LOGIN    = 'admin';
+const PANEL_PASSWORD = 'ignor2024';
+
+// ══════════════════════════════════════════
+// СОСТОЯНИЕ
+// ══════════════════════════════════════════
+let ws = null, rconConnected = false, msgId = 1;
+let pendingCmds = {};
+let playersData = [], bansData = [], mutesData = [];
+let reportsData = [], historyData = [], staffData = [];
+let cmdHistory = [], cmdHistoryIdx = -1;
+let currentUser = { login: '', role: 'admin', name: 'Admin' };
+
+// Загрузка данных из localStorage
+function loadStorage() {
+  try {
+    bansData    = JSON.parse(localStorage.getItem('ip_bans'))    || [];
+    mutesData   = JSON.parse(localStorage.getItem('ip_mutes'))   || [];
+    reportsData = JSON.parse(localStorage.getItem('ip_reports')) || [];
+    historyData = JSON.parse(localStorage.getItem('ip_history')) || [];
+    staffData   = JSON.parse(localStorage.getItem('ip_staff'))   || getDefaultStaff();
+  } catch(e) {
+    staffData = getDefaultStaff();
+  }
+}
+function saveStorage() {
+  localStorage.setItem('ip_bans',    JSON.stringify(bansData));
+  localStorage.setItem('ip_mutes',   JSON.stringify(mutesData));
+  localStorage.setItem('ip_reports', JSON.stringify(reportsData));
+  localStorage.setItem('ip_history', JSON.stringify(historyData));
+  localStorage.setItem('ip_staff',   JSON.stringify(staffData));
+}
+function getDefaultStaff() {
+  return [
+    { id:1, name:'Ignor', login:'admin', password:'ignor2024', role:'owner', added:'01.01.2025' }
+  ];
+}
+
+// ══════════════════════════════════════════
+// ЛОГИН
+// ══════════════════════════════════════════
+function doLogin() {
+  const u = document.getElementById('login-user').value.trim();
+  const p = document.getElementById('login-pass').value;
+  loadStorage();
+
+  // Проверяем среди сотрудников
+  const member = staffData.find(s => s.login === u && s.password === p);
+  const isOwner = (u === PANEL_LOGIN && p === PANEL_PASSWORD);
+
+  if (member || isOwner) {
+    currentUser = member
+      ? { login: member.login, role: member.role, name: member.name }
+      : { login: 'admin', role: 'owner', name: 'Admin' };
+    document.getElementById('sidebar-username').textContent = currentUser.name;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    renderAll();
+  } else {
+    const err = document.getElementById('login-error');
+    err.style.display = 'block';
+    setTimeout(() => err.style.display = 'none', 3000);
+  }
+}
+
+function doLogout() {
+  disconnectRCON();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('login-pass').value = '';
+}
+
+// ══════════════════════════════════════════
+// НАВИГАЦИЯ
+// ══════════════════════════════════════════
+function showPage(name, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + name).classList.add('active');
+  if (el) el.classList.add('active');
+}
+
+// ══════════════════════════════════════════
+// RCON
+// ══════════════════════════════════════════
+function connectRCON() {
+  const ip   = document.getElementById('rcon-ip').value.trim();
+  const port = document.getElementById('rcon-port').value.trim() || '28016';
+  const pass = document.getElementById('rcon-pass').value.trim();
+  if (!ip)   { toast('Введите IP сервера', 'error'); return; }
+  if (!pass) { toast('Введите RCON пароль', 'error'); return; }
+  if (ws) ws.close();
+  setStatus('connecting');
+  clog(`Подключение к ${ip}:${port}...`, 'info');
+  try { ws = new WebSocket(`ws://${ip}:${port}/${pass}`); } catch(e) {
+    setStatus('offline'); clog('Ошибка: ' + e.message, 'error'); return;
+  }
+  ws.onopen = () => {
+    rconConnected = true; setStatus('online');
+    clog('✅ Подключено!', 'success'); toast('Подключено к серверу!', 'success');
+    refreshAll();
+  };
+  ws.onmessage = (e) => {
+    try { handleMsg(JSON.parse(e.data)); } catch { clog(e.data, 'resp'); }
+  };
+  ws.onerror = () => { setStatus('offline'); clog('❌ Ошибка соединения', 'error'); toast('Ошибка соединения', 'error'); };
+  ws.onclose = () => { rconConnected = false; setStatus('offline'); clog('🔌 Соединение закрыто', 'warn'); };
+}
+function disconnectRCON() {
+  if (ws) { ws.close(); ws = null; }
+  rconConnected = false; setStatus('offline');
+}
+function setStatus(s) {
+  const d1 = document.getElementById('rcon-dot'), t1 = document.getElementById('rcon-text');
+  const d2 = document.getElementById('status-dot'), t2 = document.getElementById('status-text');
+  [d1,d2].forEach(d => d.className = 'dot');
+  if (s === 'online') {
+    [d1,d2].forEach(d => d.classList.add('online'));
+    t1.textContent = 'Подключено'; t2.textContent = 'Подключено';
+  } else if (s === 'connecting') {
+    [d1,d2].forEach(d => d.classList.add('connecting'));
+    t1.textContent = 'Подключение...'; t2.textContent = 'Подключение...';
+  } else {
+    [d1,d2].forEach(d => d.classList.add('offline'));
+    t1.textContent = 'Нет соединения'; t2.textContent = 'Не подключён';
+  }
+}
+function sendRcon
+(cmd, cb) {
+  if (!rconConnected || !ws) { toast('Нет соединения', 'error'); return; }
+  const id = msgId++;
+  if (cb) pendingCmds[id] = cb;
+  ws.send(JSON.stringify({ Identifier: id, Message: cmd, Name: 'IgnorPanel' }));
+}
+function handleMsg(data) {
+  const id = data.Identifier, msg = data.Message || '';
+  if (id && pendingCmds[id]) { pendingCmds[id](msg); delete pendingCmds[id]; }
+  if (data.Type === 'Chat') { parseChatMsg(msg); return; }
+  if (msg) clog(msg, 'resp');
+  if (id && msg) {
+    try {
+      const p = JSON.parse(msg);
+      if (Array.isArray(p) && p[0]?.SteamID !== undefined) processPlayers(p);
+      if (p?.Framerate) {
+        document.getElementById('stat-fps').textContent = Math.round(p.Framerate);
+        document.getElementById('stat-slots').textContent = p.MaxPlayers || '—';
+        document.getElementById('stat-map').textContent = p.Map || '—';
+      }
+    } catch {}
+  }
+}
+
+// ══════════════════════════════════════════
+// ИГРОКИ
+// ══════════════════════════════════════════
+function loadPlayers() {
+  if (!rconConnected) { toast('Нет соединения', 'error'); return; }
+  sendRcon('playerlist', resp => {
+    try { processPlayers(JSON.parse(resp)); } catch { clog('Не удалось разобрать список игроков', 'warn'); }
+  });
+}
+function processPlayers(list) {
+  playersData = list.map(p => ({
+    name: p.DisplayName || p.Username || 'Unknown',
+    steamId: String(p.SteamID || p.UserID || ''),
+    ping: p.Ping || 0,
+    address: p.Address || ''
+  }));
+  document.getElementById('stat-online').textContent = playersData.length;
+  document.getElementById('badge-players').textContent = playersData.length;
+  renderPlayersTable(playersData);
+  renderDashPlayers(playersData);
+}
+function renderPlayersTable(list) {
+  const tb = document.getElementById('players-table');
+  if (!list.length) { tb.innerHTML = emptyRow(5,'👥','Нет игроков онлайн'); return; }
+  tb.innerHTML = list.map(p => `
+    <tr>
+      <td><div class="pcell"><div class="pava">👤</div><div><div class="pname">${esc(p.name)}</div></div></div></td>
+      <td><span class="psteam">${esc(p.steamId)}</span></td>
+      <td>${p.ping} ms</td>
+      <td><span class="badge b-online">● Онлайн</span></td>
+      <td><div class="actions">
+        <button class="btn btn-red btn-sm" onclick="quickBan('${esc(p.steamId)}','${esc(p.name)}')">🔨 Бан</button>
+        <button class="btn btn-yellow btn-sm" onclick="quickMute('${esc(p.steamId)}','${esc(p.name)}')">🔇 Мут</button>
+        <button class="btn btn-ghost btn-sm" onclick="quickKick('${esc(p.steamId)}','${esc(p.name)}')">👢 Кик</button>
+        <button class="btn btn-blue btn-sm" onclick="quickWarn('${esc(p.steamId)}','${esc(p.name)}')">⚠️ Варн</button>
+      </div></td>
+    </tr>`).join('');
+}
+function renderDashPlayers(list) {
+  const tb = document.getElementById('dash-players');
+  if (!list.length) { tb.innerHTML = emptyRow(4,'👥','Нет игроков онлайн'); return; }
+  tb.innerHTML = list.map(p => `
+    <tr>
+      <td><div class="pcell"><div class="pava">👤</div><div><div class="pname">${esc(p.name)}</div></div></div></td>
+      <td><span class="psteam">${esc(p.steamId)}</span></td>
+      <td>${p.ping} ms</td>
+      <td><div class="actions">
+        <button class="btn btn-red btn-sm" onclick="quickBan('${esc(p.steamId)}','${esc(p.name)}')">🔨</button>
+        <button class="btn btn-yellow btn-sm" onclick="quickMute('${esc(p.steamId)}','${esc(p.name)}')">🔇</button>
+        <button class="btn btn-ghost btn-sm" onclick="quickKick('${esc(p.steamId)}','${esc(p.name)}')">👢</button>
+      </div></td>
+    </tr>`).join('');
+}
+function filterPlayers(q) {
+  const f = q.toLowerCase();
+  renderPlayersTable(playersData.filter(p => p.name.toLowerCase().includes(f) || p.steamId.includes(f)));
+}
+
+// ══════════════════════════════════════════
+// БЫСТРЫЕ ДЕЙСТВИЯ
+// ══════════════════════════════════════════
+function quickBan(id, name)  { document.getElementById('ban-target').value = id; document.getElementById('ban-by').value = currentUser.name; openModal('modal-ban'); }
+function quickMute(id, name) { document.getElementById('mute-target').value = id; document.getElementById('mute-by').value = currentUser.name; openModal('modal-mute'); }
+function quickKick(id, name) { document.getElementById('kick-target').value = id; document.getElementById('kick-reason').value = ''; openModal('modal-kick'); }
+function quickWarn(id, name) { document.getElementById('warn-target').value = id; document.getElementById('warn-reason').value = ''; openModal('modal-warn'); }
+
+// ══════════════════════════════════════════
+// БАНЫ
+// ══════════════════════════════════════════
+function executeBan() {
+  const target = document.getElementById('ban-target').value.trim();
+  const reason = document.getElementById('ban-reason').value.trim() || 'Нарушение правил';
+  const dur    = document.getElementById('ban-duration').value.trim() || '0';
+  const by     = document.getElementById('ban-by').value.trim() || currentUser.name;
+  if (!target) { toast('Введите Steam ID или ник', 'error'); return; }
+  sendRcon(dur === '0' ? `ban ${target} ${reason}` : `ban ${target} ${dur} ${reason}`, resp => clog('Бан: ' + resp, 'success'));
+  const entry = { name: target, steamId: target, reason, by, date: now() };
+  bansData.unshift(entry);
+  renderBansTable(bansData);
+  updateBadge('badge-bans', bansData.length);
+  document.getElementById('stat-bans').textContent = bansData.length;
+  addHistory('ban', `Бан: ${target}`, `Причина: ${reason} | Кем: ${by}`);
+  saveStorage(); toast(`Игрок ${target} забанен`, 'success');
+  closeModal('modal-ban');
+  document.getElementById('ban-target').value = '';
+  document.getElementById('ban-reason').value = '';
+  document.getElementById('ban-duration').value = '0';
+}
+function renderBansTable(list) {
+  const tb = document.getElementById('bans-table');
+  if (!list.length) { tb.innerHTML = emptyRow(6,'🔨','Банов нет'); return; }
+  tb.innerHTML = list.map((b,i) => `
+    <tr>
+      <td><div class="pcell"><div class="pava">👤</div><div class="pname">${esc(b.name)}</div></div></td>
+      <td><span class="psteam">${esc(b.steamId)}</span></td>
+      <td>${esc(b.reason)}</td>
+      <td><span style="color:var(--text2)">${esc(b.by||'—')}</span></td>
+      <td>${esc(b.date)}</td>
+      <td><button class="btn btn-green btn-sm" onclick="unban(${i})">✅ Разбанить</button></td>
+    </tr>`).join('');
+}
+function unban(i) {
+  const b = bansData[i];
+  sendRcon(`unban ${b.steamId}`, resp => clog('Разбан: ' + resp, 'success'));
+  addHistory('unban', `Разбан: ${b.name}`, `Кем: ${currentUser.name}`);
+  bansData.splice(i,1); renderBansTable(bansData);
+  updateBadge('badge-bans', bansData.length);
+  document.getElementById('stat-bans').textContent = bansData.length;
+  saveStorage(); toast('Игрок разбанен', 'success');
+}
+function filterBans(q) {
+  const f = q.toLowerCase();
+  renderBansTable(bansData.filter(b => b.name.toLowerCase().includes(f) || b.steamId.includes(f)));
+}
+
+// ══════════════════════════════════════════
+// МУТЫ
+// ══════════════════════════════════════════
+function executeMute() {
+  const target = document.getElementById('mute-target').value.trim();
+  const reason = document.getElementById('mute-reason').value.trim() || 'Нарушение правил';
+  const dur    = parseInt(document.getElementById('mute-duration').value.trim()) || 60;
+  const by     = document.getElementById('mute-by').value.trim() || currentUser.name;
+  if (!target) { toast('Введите Steam ID или ник', 'error'); return; }
+  sendRcon(`mute ${target} ${dur} ${reason}`, resp => clog('Мут: ' + resp, 'success'));
+  const until = dur === 0 ? 'Навсегда' : new Date(Date.now() + dur * 60000).toLocaleString('ru');
+  const entry = { name: target, steamId: target, reason, by, until };
+  mutesData.unshift(entry);
+  renderMutesTable(mutesData);
+  updateBadge('badge-mutes', mutesData.length);
+  document.getElementById('stat-mutes').textContent = mutesData.length;
+  addHistory('mute', `Мут: ${target}`, `Причина: ${reason} | До: ${until} | Кем: ${by}`);
+  saveStorage(); toast(`Игрок ${target} замучен`, 'success');
+  closeModal('modal-mute');
+  document.getElementById('mute-target').value = '';
+  document.getElementById('mute-reason').value = '';
+  document.getElementById('mute-duration').value = '60';
+}
+function renderMutesTable(list) {
+  const tb = document.getElementById('mutes-table');
+  if (!list.length) { tb.innerHTML = emptyRow(6,'🔇','Мутов нет'); return; }
+  tb.innerHTML = list.map((m,i) => `
+    <tr>
+      <td><div class="pcell"><div class="pava">👤</div><div class="pname">${esc(m.name)}</div></div></td>
+      <td><span class="psteam">${esc(m.steamId)}</span></td>
+      <td>${esc(m.reason)}</td>
+      <td><span style="color:var(--text2)">${esc(m.by||'—')}</span></td>
+      <td>${esc(m.until)}</td>
+      <td><button class="btn btn-green btn-sm" onclick="unmute(${i})">✅ Размутить</button></td>
+    </tr>`).join('');
+}
+function unmute(i) {
+  const m = mutesData[i];
+  sendRcon(`unmute ${m.steamId}`, resp => clog('Размут: ' + resp, 'success'));
+  addHistory('unmute', `Размут: ${m.name}`, `Кем: ${currentUser.name}`);
+  mutesData.splice(i,1); renderMutesTable(mutesData);
+  updateBadge('badge-mutes', mutesData.length);
+  document.getElementById('stat-mutes').textContent = mutesData.length;
+  saveStorage(); toast('Игрок размучен', 'success');
+}
+function filterMutes(q) {
+  const f = q.toLowerCase();
+  renderMutesTable(mutesData.filter(m => m.name.toLowerCase().includes(f) || m.steamId.includes(f)));
+}
+
+// ══════════════════════════════════════════
+// КИК
+// ══════════════════════════════════════════
+function executeKick() {
+  const target = document.getElementById('kick-target').value.trim();
+  const reason = document.getElementById('kick-reason').value.trim() || 'Кик администратором';
+  if (!target) { toast('Введите Steam ID или ник', 'error'); return; }
+  sendRcon(`kick ${target} ${reason}`, resp => clog('Кик: ' + resp, 'success'));
+  addHistory('kick', `Кик: ${target}`, `Причина: ${reason} | Кем: ${currentUser.name}`);
+  saveStorage(); toast(`Игрок ${target} кикнут`, 'success');
+  closeModal('modal-kick');
+}
+
+// ══════════════════════════════════════════
+// ВАРН
+// ══════════════════════════════════════════
+function executeWarn() {
+  const target = document.getElementById('warn-target').value.trim();
+  const reason = document.getElementById('warn-reason').value.trim() || 'Предупреждение';
+  if (!target) { toast('Введите Steam ID или ник', 'error'); return; }
+  sendRcon(`say [WARN] ${target}: ${reason}`, () => {});
+  addHistory('warn', `Варн: ${target}`, `Причина: ${reason} | Кем: ${currentUser.name}`);
+  saveStorage(); toast(`Игрок ${target} предупреждён`, 'warn');
+  closeModal('modal-warn');
+}
+
+// ══════════════════════════════════════════
+// РЕПОРТЫ
+// ══════════════════════════════════════════
+function renderReports() {
+  const c = document.getElementById('reports-container');
+  if (!reportsData.length) {
+    c.innerHTML = '<div class="empty-state"><div class="ei">🚨</div><p>Репортов нет</p></div>'; return;
+  }
+  document.getElementById('badge-reports').textContent = reportsData.filter(r => r.status === 'new').length;
+  c.innerHTML = '<div class="reports-grid">' + reportsData.map((r,i) => `
+    <div class="rep-card ${r.urgent ? 'urgent' : 'normal'}">
+      <div class="rep-hdr">
+        <span class="rep-title">${esc(r.reporter)} → ${esc(r.target)}</span>
+        <div style="display:flex;gap:6px">
+          ${r.urgent ? '<span class="badge b-urgent">🔴 Срочно</span>' : '<span class="badge b-new">🔵 Новый</span>'}
+          ${r.status === 'done' ? '<span class="badge b-done">✅ Закрыт</span>' : ''}
+        </div>
+      </div>
+      <div class="rep-body">${esc(r.reason)}</div>
+      <div class="rep-footer">
+        <span class="rep-meta">${esc(r.time)}</span>
+        <div style="display:flex;gap:6px">
+          ${r.status !== 'done' ? `<button class="btn btn-green btn-sm" onclick="closeReport(${i})">✅ Закрыть</button>` : ''}
+          <button class="btn btn-red btn-sm" onclick="deleteReport(${i})">🗑️</button>
+        </div>
+      </div>
+    </div>`).join('') + '</div>';
+}
+function closeReport(i) {
+  reportsData[i].status = 'done';
+  saveStorage(); renderReports();
+  toast('Репорт закрыт', 'success');
+}
+function deleteReport(i) {
+  reportsData.splice(i,1);
+  saveStorage(); renderReports();
+}
+function clearReports() {
+  reportsData = []; saveStorage(); renderReports();
+}
+function addDemoReport() {
+  const names = ['Player123','xXRustKingXx','noob_slayer','ProGamer','SteveRust'];
+  const reasons = ['Использует читы','Летает над базой','Стреляет сквозь стены','Оскорбляет игроков','Спамит в чате'];
+  reportsData.unshift({
+    reporter: names[Math.floor(Math.random()*names.length)],
+    target:   names[Math.floor(Math.random()*names.length)],
+    reason:   reasons[Math.floor(Math.random()*reasons.length)],
+    urgent:   Math.random() > 0.6,
+    status:   'new',
+    time:     now()
+  });
+  saveStorage(); renderReports();
+  updateBadge('badge-reports', reportsData.filter(r => r.status === 'new').length);
+}
+
+// ══════════════════════════════════════════
+// ИСТОРИЯ
+// ══════════════════════════════════════════
+function addHistory(type, action, detail) {
+  const icons = { ban:'🔨', mute:'🔇', kick:'👢', unban:'✅', unmute:'✅', warn:'⚠️' };
+  historyData.unshift({ type, icon: icons[type]||'📋', action, detail, time: now() });
+  if (historyData.length > 200) historyData.pop();
+  renderHistory();
+}
+function renderHistory() {
+  const c = document.getElementById('history-list');
+  if (!historyData.length) {
+    c.innerHTML = '<div class="empty-state"><div class="ei">📋</div><p>История пуста</p></div>'; return;
+  }
+  c.innerHTML = historyData.map(h => `
+    <div class="hist-item">
+      <div class="hist-ico ${h.type}">${h.icon}</div>
+      <div class="hist-body">
+        <div class="hist-action">${esc(h.action)}</div>
+        <div class="hist-detail">${esc(h.detail)}</div>
+      </div>
+      <div class="hist-time">${esc(h.time)}</div>
+    </div>`).join('');
+}
+function clearHistory() {
+  historyData = []; saveStorage(); renderHistory();
+}
+
+// ══════════════════════════════════════════
+// ЧАТ
+// ══════════════════════════════════════════
+function parseChatMsg(raw) {
+  try {
+    const d = JSON.parse(raw);
+    addChatMsg(d.Username || 'Игрок', d.Message || raw, false, d.Channel === 'team');
+  } catch { addChatMsg('Игрок', raw, false, false); }
+}
+function addChatMsg(name, text, isServer, isTeam) {
+  const log = document.getElementById('chat-log');
+  const empties = log.querySelectorAll('.empty-state');
+  empties.forEach(e => e.remove());
+  const div = document.createElement('div');
+  div.className = 'chat-msg' + (isServer ? ' srv' : isTeam ? ' team' : '');
+  const t = new Date().toLocaleTimeString('ru');
+  div.innerHTML = `
+    <div class="cava">${isServer ? '🖥️' : isTeam ? '🤝' : '👤'}</div>
+    <div>
+      <div class="ctop"><span class="cname">${esc(name)}</span><span class="ctime">${t}</span></div>
+      <div class="ctext">${esc(text)}</div>
+    </div>`;
+  log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+}
+function sendChat() {
+  const inp = document.getElementById('chat-input');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  sendRcon(`say ${msg}`, () => {});
+  addChatMsg('Сервер', msg, true, false);
+  inp.value = '';
+}
+function clearChat() {
+  document.getElementById('chat-log').innerHTML = '<div class="empty-state"><div class="ei">💬</div><p>Чат очищен</p></div>';
+}
+
+// ══════════════════════════════════════════
+// КОНСОЛЬ
+// ══════════════════════════════════════════
+function clog(msg, type='info') {
+  const out = document.getElementById('console-out');
+  const t = new Date().toLocaleTimeString('ru');
+  const d = document.createElement('div');
+  d.className = 'll ' + type;
+  d.textContent = `[${t}] ${msg}`;
+  out.appendChild(d);
+  out.scrollTop = out.scrollHeight;
+}
+function sendConsoleCmd() {
+  const inp = document.getElementById('c-input');
+  const cmd = inp.value.trim();
+  if (!cmd) return;
+  cmdHistory.unshift(cmd); cmdHistoryIdx = -1;
+  clog('❯ ' + cmd, 'cmd');
+  sendRcon(cmd, resp => clog(resp, 'resp'));
+  inp.value = '';
+}
+function handleConsoleKey(e) {
+  const inp = document.getElementById('c-input');
+  if (e.key === 'Enter') { sendConsoleCmd(); return; }
+  if (e.key === 'ArrowUp') { cmdHistoryIdx = Math.min(cmdHistoryIdx+1, cmdHistory.length-1); inp.value = cmdHistory[cmdHistoryIdx]||''; e.preventDefault(); }
+  if (e.key === 'ArrowDown') { cmdHistoryIdx = Math.max(cmdHistoryIdx-1,-1); inp.value = cmdHistoryIdx>=0 ? cmdHistory[cmdHistoryIdx] : ''; e.preventDefault(); }
+}
+function clearConsole() {
+  document.getElementById('console-out').innerHTML = '<div class="ll info">[ Ignor Panel ] Консоль очищена.</div>';
+}
+
+// ══════════════════════════════════════════
+// СОТРУДНИКИ
+// ══════════════════════════════════════════
+function addStaff() {
+  const name  = document.getElementById('staff-name').value.trim();
+  const login = document.getElementById('staff-login').value.trim();
+  const pass  = document.getElementById('staff-password').value;
+  const role  = document.getElementById('staff-role').value;
+  if (!name || !login || !pass) { toast('Заполните все поля', 'error'); return; }
+  if (staffData.find(s => s.login === login)) { toast('Логин уже занят', 'error'); return; }
+  staffData.push({ id: Date.now(), name, login, password: pass, role, added: now() });
+  saveStorage(); renderStaff();
+  toast(`Сотрудник ${name} добавлен`, 'success');
+  closeModal('modal-staff');
+  document.getElementById('staff-name').value = '';
+  document.getElementById('staff-login').value = '';
+  document.getElementById('staff-password').value = '';
+}
+function removeStaff(i) {
+  if (staffData[i].role === 'owner') { toast('Нельзя удалить владельца', 'error'); return; }
+  const name = staffData[i].name;
+  staffData.splice(i,1); saveStorage(); renderStaff();
+  toast(`${name} удалён`, 'info');
+}
+function renderStaff() {
+  const c = document.getElementById('staff-container');
+  if (!staffData.length) { c.innerHTML = '<div class="empty-state"><div class="ei">👮</div><p>Нет сотрудников</p></div>'; return; }
+  const roleLabel = { owner:'👑 Owner', admin:'🔴 Admin', moder:'🔵 Moderator' };
+  const roleBadge = { owner:'b-owner', admin:'b-admin', moder:'b-moder' };
+  const roleIcon  = { owner:'👑', admin:'🛡️', moder:'🔵' };
+  c.innerHTML = '<div class="staff-grid">' + staffData.map((s,i) => `
+    <div class="staff-card">
+      <div class="staff-ava">${roleIcon[s.role]||'👤'}</div>
+      <div class="staff-info">
+        <div class="staff-name">${esc(s.name)}</div>
+        <div class="staff-login">@${esc(s.login)}</div>
+        <div class="staff-acts">
+          <span class="badge ${roleBadge[s.role]||'b-moder'}">${roleLabel[s.role]||s.role}</span>
+          <span style="font-size:11px;color:var(--text3);margin-left:4px">с ${esc(s.added)}</span>
+        </div>
+      </div>
+      ${s.role !== 'owner' ? `<button class="btn btn-red btn-sm" onclick="removeStaff(${i})" title="Удалить">✕</button>` : ''}
+    </div>`).join('') + '</div>';
+}
+
+// ══════════════════════════════════════════
+// ОБНОВИТЬ ВСЁ
+// ══════════════════════════════════════════
+function refreshAll() {
+  if (!rconConnected) return;
+  loadPlayers();
+  sendRcon('serverinfo', resp => {
+    try {
+      const info = JSON.parse(resp);
+      if (info.MaxPlayers) document.getElementById('stat-slots').textContent = info.MaxPlayers;
+      if (info.Framerate)  document.getElementById('stat-fps').textContent = Math.round(info.Framerate);
+      if (info.Map)        document.getElementById('stat-map').textContent = info.Map;
+    } catch {}
+  });
+}
+function renderAll() {
+  renderBansTable(bansData);
+  renderMutesTable(mutesData);
+  renderReports();
+  renderHistory();
+  renderStaff();
+  document.getElementById('stat-bans').textContent  = bansData.length;
+  document.getElementById('stat-mutes').textContent = mutesData.length;
+  updateBadge('badge-bans',    bansData.length);
+  updateBadge('badge-mutes',   mutesData.length);
+  updateBadge('badge-reports', reportsData.filter(r => r.status === 'new').length);
+}
+
+// ══════════════════════════════════════════
+// МОДАЛКИ
+// ══════════════════════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(o => {
+  o.addEventListener('click', function(e) { if (e.target === this) this.classList.remove('open'); });
+});
+
+// ══════════════════════════════════════════
+// TOAST
+// ══════════════════════════════════════════
+function toast(msg, type='info') {
+  const icons = { success:'✅', error:'❌', info:'ℹ️', warn:'⚠️' };
+  const d = document.createElement('div');
+  d.className = 'toast ' + type;
+  d.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${esc(msg)}</span>`;
+  document.getElementById('toast-container').appendChild(d);
+  setTimeout(() => d.remove(), 3500);
+}
+
+// ══════════════════════════════════════════
+// УТИЛИТЫ
+// ══════════════════════════════════════════
+function esc(s) {
+  return String(s).replace(/&/g,'&').replace(/</g,'<').replace(/>/g,'>').replace(/"/g,'"');
+}
+function now() { return new Date().toLocaleString('ru'); }
+function emptyRow(cols, icon, text) {
+  return `<tr><td colspan="${cols}"><div class="empty-state"><div class="ei">${icon}</div><p>${text}</p></div></td></tr>`;
+}
+function updateBadge(id, count) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = count;
+  el.style.display = count > 0 ? 'inline-block' : 'none';
+}
+
+// Автообновление каждые 30 сек
+setInterval(() => { if (rconConnected) loadPlayers(); }, 30000);
+</script>
+</body>
+</html>
