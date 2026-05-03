@@ -835,12 +835,9 @@ function doLogin() {
 
   // Проверяем среди сотрудников
   const member = staffData.find(s => s.login === u && s.password === p);
-  const isOwner = (u === PANEL_LOGIN && p === PANEL_PASSWORD);
 
-  if (member || isOwner) {
-    currentUser = member
-      ? { login: member.login, role: member.role, name: member.name }
-      : { login: 'admin', role: 'owner', name: 'Admin' };
+  if (member) {
+    currentUser = { login: member.login, role: member.role, name: member.name };
     document.getElementById('sidebar-username').textContent = currentUser.name;
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
