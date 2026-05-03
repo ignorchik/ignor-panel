@@ -374,20 +374,35 @@ select:focus{border-color:var(--red2);box-shadow:0 0 0 3px var(--red-dim);}
 
     <!-- CONNECT BAR -->
     <div class="connect-bar">
+      <!-- Переключатель режима -->
       <div class="cb-group">
-        <label>Протокол</label>
-        <select id="rcon-proto" style="width:90px;padding:8px 10px;font-size:13px;border-radius:7px;">
-          <option value="ws">ws://</option>
-          <option value="wss">wss://</option>
+        <label>Режим</label>
+        <select id="rcon-mode" style="width:110px;padding:8px 10px;font-size:13px;border-radius:7px;" onchange="toggleProxyMode()">
+          <option value="direct">Прямой ws://</option>
+          <option value="proxy">Через прокси</option>
         </select>
       </div>
-      <div class="cb-group">
-        <label>IP Сервера</label>
-        <input class="ip" type="text" id="rcon-ip" placeholder="127.0.0.1">
+      <!-- Прямое подключение -->
+      <div id="direct-fields" style="display:flex;gap:14px;align-items:flex-end;flex-wrap:wrap;">
+        <div class="cb-group">
+          <label>IP Сервера</label>
+          <input class="ip" type="text" id="rcon-ip" placeholder="185.34.12.55">
+        </div>
+        <div class="cb-group">
+          <label>RCON Порт</label>
+          <input class="port" type="text" id="rcon-port" placeholder="28016">
+        </div>
       </div>
-      <div class="cb-group">
-        <label>RCON Порт</label>
-        <input class="port" type="text" id="rcon-port" placeholder="28016">
+      <!-- Прокси поле -->
+      <div id="proxy-fields" style="display:none;gap:14px;align-items:flex-end;flex-wrap:wrap;">
+        <div class="cb-group">
+          <label>Адрес прокси (workers.dev)</label>
+          <input type="text" id="rcon-proxy" placeholder="misty-pond-8c73.derlyainv.workers.dev" style="width:310px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 11px;border-radius:7px;font-size:13px;outline:none;">
+        </div>
+        <div class="cb-group">
+          <label>IP:Порт сервера</label>
+          <input type="text" id="rcon-ip-port" placeholder="185.34.12.55:28016" style="width:175px;background:var(--bg3);border:1px solid var(--border2);color:var(--text);padding:8px 11px;border-radius:7px;font-size:13px;outline:none;">
+        </div>
       </div>
       <div class="cb-group">
         <label>RCON Пароль</label>
@@ -880,17 +895,36 @@ function showPage(name, el) {
 // ══════════════════════════════════════════
 // RCON
 // ══════════════════════════════════════════
+function toggleProxyMode() {
+  const mode = document.getElementById('rcon-mode').value;
+  document.getElementById('direct-fields').style.display = mode === 'direct' ? 'flex' : 'none';
+  document.getElementById('proxy-fields').style.display  = mode === 'proxy'  ? 'flex' : 'none';
+}
+
 function connectRCON() {
-  const ip    = document.getElementById('rcon-ip').value.trim();
-  const port  = document.getElementById('rcon-port').value.trim() || '28016';
-  const pass  = document.getElementById('rcon-pass').value.trim();
-  const proto = document.getElementById('rcon-proto').value; // 'ws' или 'wss'
-  if (!ip)   { toast('Введите IP сервера', 'error'); return; }
+  const mode = document.getElementById('rcon-mode').value;
+  const pass = document.getElementById('rcon-pass').value.trim();
   if (!pass) { toast('Введите RCON пароль', 'error'); return; }
+
+  let wsUrl = '';
+
+  if (mode === 'direct') {
+    const ip   = document.getElementById('rcon-ip').value.trim();
+    const port = document.getElementById('rcon-port').value.trim() || '28016';
+    if (!ip) { toast('Введите IP сервера', 'error'); return; }
+    wsUrl = `ws://${ip}:${port}/${pass}`;
+  } else {
+    const proxy  = document.getElementById('rcon-proxy').value.trim();
+    const ipport = document.getElementById('rcon-ip-port').value.trim();
+    if (!proxy)  { toast('Введите адрес прокси', 'error'); return; }
+    if (!ipport) { toast('Введите IP:Порт сервера', 'error'); return; }
+    wsUrl = `wss://${proxy}/${ipport}/${pass}`;
+  }
+
   if (ws) ws.close();
   setStatus('connecting');
-  clog(`Подключение к ${proto}://${ip}:${port}...`, 'info');
-  try { ws = new WebSocket(`${proto}://${ip}:${port}/${pass}`); } catch(e) {
+  clog(`Подключение к ${wsUrl.replace(pass, '***')}...`, 'info');
+  try { ws = new WebSocket(wsUrl); } catch(e) {
     setStatus('offline'); clog('Ошибка: ' + e.message, 'error'); return;
   }
   ws.onopen = () => {
@@ -1404,11 +1438,11 @@ function updateBadge(id, count) {
 // Автообновление каждые 30 сек
 setInterval(() => { if (rconConnected) loadPlayers(); }, 30000);
 
-// Авто-выбор протокола: если сайт открыт по https — ставим wss по умолчанию
+// Авто-выбор протокола: если сайт открыт по https — ставим режим прокси по умолчанию
 (function() {
   if (location.protocol === 'https:') {
-    const sel = document.getElementById('rcon-proto');
-    if (sel) sel.value = 'wss';
+    const sel = document.getElementById('rcon-mode');
+    if (sel) { sel.value = 'proxy'; toggleProxyMode(); }
   }
 })();
 </script>
