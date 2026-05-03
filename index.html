@@ -375,6 +375,13 @@ select:focus{border-color:var(--red2);box-shadow:0 0 0 3px var(--red-dim);}
     <!-- CONNECT BAR -->
     <div class="connect-bar">
       <div class="cb-group">
+        <label>Протокол</label>
+        <select id="rcon-proto" style="width:90px;padding:8px 10px;font-size:13px;border-radius:7px;">
+          <option value="ws">ws://</option>
+          <option value="wss">wss://</option>
+        </select>
+      </div>
+      <div class="cb-group">
         <label>IP Сервера</label>
         <input class="ip" type="text" id="rcon-ip" placeholder="127.0.0.1">
       </div>
@@ -833,8 +840,12 @@ function doLogin() {
   const p = document.getElementById('login-pass').value;
   loadStorage();
 
-  // Проверяем среди сотрудников
-  const member = staffData.find(s => s.login === u && s.password === p);
+  // Проверяем среди сотрудников, а также среди захардкоженных пользователей USERS
+  let member = staffData.find(s => s.login === u && s.password === p);
+  if (!member) {
+    const fallback = USERS.find(s => s.login === u && s.password === p);
+    if (fallback) member = fallback;
+  }
 
   if (member) {
     currentUser = { login: member.login, role: member.role, name: member.name };
@@ -870,15 +881,16 @@ function showPage(name, el) {
 // RCON
 // ══════════════════════════════════════════
 function connectRCON() {
-  const ip   = document.getElementById('rcon-ip').value.trim();
-  const port = document.getElementById('rcon-port').value.trim() || '28016';
-  const pass = document.getElementById('rcon-pass').value.trim();
+  const ip    = document.getElementById('rcon-ip').value.trim();
+  const port  = document.getElementById('rcon-port').value.trim() || '28016';
+  const pass  = document.getElementById('rcon-pass').value.trim();
+  const proto = document.getElementById('rcon-proto').value; // 'ws' или 'wss'
   if (!ip)   { toast('Введите IP сервера', 'error'); return; }
   if (!pass) { toast('Введите RCON пароль', 'error'); return; }
   if (ws) ws.close();
   setStatus('connecting');
-  clog(`Подключение к ${ip}:${port}...`, 'info');
-  try { ws = new WebSocket(`ws://${ip}:${port}/${pass}`); } catch(e) {
+  clog(`Подключение к ${proto}://${ip}:${port}...`, 'info');
+  try { ws = new WebSocket(`${proto}://${ip}:${port}/${pass}`); } catch(e) {
     setStatus('offline'); clog('Ошибка: ' + e.message, 'error'); return;
   }
   ws.onopen = () => {
@@ -1391,6 +1403,14 @@ function updateBadge(id, count) {
 
 // Автообновление каждые 30 сек
 setInterval(() => { if (rconConnected) loadPlayers(); }, 30000);
+
+// Авто-выбор протокола: если сайт открыт по https — ставим wss по умолчанию
+(function() {
+  if (location.protocol === 'https:') {
+    const sel = document.getElementById('rcon-proto');
+    if (sel) sel.value = 'wss';
+  }
+})();
 </script>
 </body>
 </html>
